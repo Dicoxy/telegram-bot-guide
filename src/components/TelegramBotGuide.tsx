@@ -36,35 +36,33 @@ const TelegramBotGuide = () => {
           </p>
           <p className="font-medium">Примеры команд:</p>
           <ul className="list-disc pl-6 space-y-2 mt-2">
-            <li>"сделай короткий пост про..." (300-500 символов)</li>
-            <li>"сделай средний пост о..." (1000-1500 символов)</li>
-            <li>"напиши длинный пост на тему..." (2000-3000 символов)</li>
-          </ul>
-        </Section>
+  <li>&quot;сделай короткий пост про...&quot; (300-500 символов)</li>
+  <li>&quot;сделай средний пост о...&quot; (1000-1500 символов)</li>
+  <li>&quot;напиши длинный пост на тему...&quot; (2000-3000 символов)</li>
+</ul>
 
-        <Section id="types" title="Типы постов">
-          <div className="space-y-4">
-            <div>
-              <h4 className="font-medium mb-2">Обучающий материал</h4>
-              <p>Команды: "сделай обучающий пост", "напиши обучение"</p>
-            </div>
-            <div>
-              <h4 className="font-medium mb-2">Размышление</h4>
-              <p>Команды: "напиши мои мысли", "пост-размышление"</p>
-            </div>
-            <div>
-              <h4 className="font-medium mb-2">Аналитика</h4>
-              <p>Команды: "сделай аналитику", "разбор темы"</p>
-            </div>
-            <div>
-              <h4 className="font-medium mb-2">Новость</h4>
-              <p>Команды: "напиши новость", "новостной пост"</p>
-            </div>
-            <div>
-              <h4 className="font-medium mb-2">Экспертное мнение</h4>
-              <p>Команды: "экспертное мнение", "как эксперт"</p>
-            </div>
-          </div>
+<div className="space-y-4">
+  <div>
+    <h4 className="font-medium mb-2">Обучающий материал</h4>
+    <p>Команды: &quot;сделай обучающий пост&quot;, &quot;напиши обучение&quot;</p>
+  </div>
+  <div>
+    <h4 className="font-medium mb-2">Размышление</h4>
+    <p>Команды: &quot;напиши мои мысли&quot;, &quot;пост-размышление&quot;</p>
+  </div>
+  <div>
+    <h4 className="font-medium mb-2">Аналитика</h4>
+    <p>Команды: &quot;сделай аналитику&quot;, &quot;разбор темы&quot;</p>
+  </div>
+  <div>
+    <h4 className="font-medium mb-2">Новость</h4>
+    <p>Команды: &quot;напиши новость&quot;, &quot;новостной пост&quot;</p>
+  </div>
+  <div>
+    <h4 className="font-medium mb-2">Экспертное мнение</h4>
+    <p>Команды: &quot;экспертное мнение&quot;, &quot;как эксперт&quot;</p>
+  </div>
+</div>
         </Section>
 
         <Section id="tips" title="Советы по использованию">
