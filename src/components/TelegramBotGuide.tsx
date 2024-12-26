@@ -3,10 +3,12 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const TelegramBotGuide = () => {
-  const [expandedSection, setExpandedSection] = useState('quickstart');
+  // Исправляем тип состояния
+  const [expandedSection, setExpandedSection] = useState<string>('quickstart');
 
+  // Меняем функцию toggleSection
   const toggleSection = (section: string) => {
-    setExpandedSection(expandedSection === section ? null : section);
+    setExpandedSection(current => current === section ? 'quickstart' : section);
   };
 
   const Section = ({ id, title, children }: { id: string; title: string; children: React.ReactNode }) => (
