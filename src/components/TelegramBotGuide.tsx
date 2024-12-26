@@ -1,10 +1,9 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const TelegramBotGuide = () => {
-  const [expandedSection, setExpandedSection] = useState('quickstart');
+  const [expandedSection, setExpandedSection] = useState<string>('quickstart');
 
   const toggleSection = (section: string) => {
     if (expandedSection === section) {
