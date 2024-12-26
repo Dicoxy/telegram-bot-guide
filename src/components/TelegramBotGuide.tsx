@@ -36,21 +36,21 @@ const TelegramBotGuide: React.FC = () => {
   );
 
   return (
-    <Card className="w-full max-w-3xl mx-auto">
+    <Card className="w-full max-w-3xl mx-auto bg-white">
       <CardHeader>
-        <CardTitle className="text-2xl">Помощник для создания постов из ваших идей</CardTitle>
+        <CardTitle className="text-2xl font-bold text-black">Помощник для создания постов из ваших идей</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="text-black">
         <Section id="quickstart" title="Как это работает">
-          <p className="mb-4">
+          <p className="mb-4 text-black">
             Этот бот - ваш личный стенографист. Он превращает ваши надиктованные мысли и идеи в структурированные посты. 
             Бот не генерирует контент сам - он помогает оформить ваши собственные мысли в читаемый формат.
           </p>
-          <p className="mb-4">
+          <p className="mb-4 text-black">
             Просто надиктуйте то, что хотите рассказать, а бот структурирует ваши мысли и оформит их в пост, сохранив ваш авторский стиль.
           </p>
-          <p className="font-medium">Примеры использования:</p>
-          <ul className="list-disc pl-6 space-y-2 mt-2">
+          <p className="font-medium text-black mb-2">Примеры использования:</p>
+          <ul className="list-disc pl-6 space-y-2 mt-2 text-black">
             <li>&quot;Запиши мои мысли о прошедшем мероприятии...&quot; [надиктуйте ваши впечатления]</li>
             <li>&quot;Оформи пост из моего рассказа о...&quot; [поделитесь вашей историей]</li>
             <li>&quot;Сделай из моих мыслей аналитический разбор...&quot; [надиктуйте ваш анализ]</li>
@@ -58,7 +58,7 @@ const TelegramBotGuide: React.FC = () => {
         </Section>
 
         <Section id="types" title="Форматы постов">
-          <div className="space-y-4">
+          <div className="space-y-4 text-black">
             <div>
               <h4 className="font-medium mb-2">Обучающий материал</h4>
               <p>Когда вы хотите поделиться знаниями: &quot;Запиши обучающий материал о том, как я...&quot;</p>
@@ -83,7 +83,7 @@ const TelegramBotGuide: React.FC = () => {
         </Section>
 
         <Section id="tips" title="Как получить лучший результат">
-          <ul className="list-disc pl-6 space-y-2">
+          <ul className="list-disc pl-6 space-y-2 text-left text-black">
             <li>В начале укажите желаемый формат поста</li>
             <li>Излагайте мысли последовательно, как если бы вы рассказывали историю</li>
             <li>Для качественной записи используйте голосовые сообщения до 5 минут</li>
@@ -92,7 +92,7 @@ const TelegramBotGuide: React.FC = () => {
         </Section>
       </CardContent>
     </Card>
-  );
+);
 };
 
 export default TelegramBotGuide;
