@@ -1,17 +1,26 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-const TelegramBotGuide = () => {
-  // Исправляем тип состояния
-  const [expandedSection, setExpandedSection] = useState<string>('quickstart');
+const TelegramBotGuide: React.FC = () => {
+  const [expandedSection, setExpandedSection] = useState('quickstart');
 
-  // Меняем функцию toggleSection
-  const toggleSection = (section: string) => {
-    setExpandedSection(current => current === section ? 'quickstart' : section);
+  const toggleSection = (section: string): void => {
+    if (expandedSection === section) {
+      setExpandedSection('quickstart');
+    } else {
+      setExpandedSection(section);
+    }
   };
 
-  const Section = ({ id, title, children }: { id: string; title: string; children: React.ReactNode }) => (
+  type SectionProps = {
+    id: string;
+    title: string;
+    children: React.ReactNode;
+  };
+
+  const Section: React.FC<SectionProps> = ({ id, title, children }) => (
     <div className="mb-4">
       <button
         onClick={() => toggleSection(id)}
