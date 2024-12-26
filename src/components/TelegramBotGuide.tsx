@@ -13,12 +13,6 @@ const TelegramBotGuide = () => {
     }
   };
 
-  type SectionProps = {
-    id: string;
-    title: string;
-    children: React.ReactNode;
-  };
-
   const Section = ({ id, title, children }: { id: string; title: string; children: React.ReactNode }) => (
     <div className="mb-4">
       <button
@@ -40,7 +34,7 @@ const TelegramBotGuide = () => {
         <CardTitle className="text-2xl font-bold text-black">Помощник для создания постов из ваших идей</CardTitle>
       </CardHeader>
       <CardContent className="text-black">
-      <Section id="quickstart" title="Как это работает">
+        <Section id="quickstart" title="Как это работает">
           <p className="mb-4 text-black">
             Этот бот - ваш личный стенографист. Он превращает ваши надиктованные мысли и идеи в структурированные посты. 
             Бот не генерирует контент сам - он помогает оформить ваши собственные мысли в читаемый формат.
