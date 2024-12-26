@@ -3,10 +3,10 @@ import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-const TelegramBotGuide: React.FC = () => {
+const TelegramBotGuide = () => {
   const [expandedSection, setExpandedSection] = useState('quickstart');
 
-  const toggleSection = (section: string): void => {
+  const toggleSection = (section: string) => {
     if (expandedSection === section) {
       setExpandedSection('quickstart');
     } else {
@@ -20,13 +20,13 @@ const TelegramBotGuide: React.FC = () => {
     children: React.ReactNode;
   };
 
-  const Section: React.FC<SectionProps> = ({ id, title, children }) => (
+  const Section = ({ id, title, children }: { id: string; title: string; children: React.ReactNode }) => (
     <div className="mb-4">
       <button
         onClick={() => toggleSection(id)}
         className="flex w-full items-center justify-between rounded-lg bg-gray-100 p-4 hover:bg-gray-200"
       >
-        <h3 className="text-lg font-semibold">{title}</h3>
+        <h3 className="text-lg font-bold text-black">{title}</h3>
         {expandedSection === id ? <ChevronUp /> : <ChevronDown />}
       </button>
       {expandedSection === id && (
@@ -41,7 +41,7 @@ const TelegramBotGuide: React.FC = () => {
         <CardTitle className="text-2xl font-bold text-black">Помощник для создания постов из ваших идей</CardTitle>
       </CardHeader>
       <CardContent className="text-black">
-        <Section id="quickstart" title="Как это работает">
+      <Section id="quickstart" title="Как это работает">
           <p className="mb-4 text-black">
             Этот бот - ваш личный стенографист. Он превращает ваши надиктованные мысли и идеи в структурированные посты. 
             Бот не генерирует контент сам - он помогает оформить ваши собственные мысли в читаемый формат.
@@ -92,7 +92,7 @@ const TelegramBotGuide: React.FC = () => {
         </Section>
       </CardContent>
     </Card>
-);
+  );
 };
 
 export default TelegramBotGuide;
