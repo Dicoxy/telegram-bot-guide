@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Выбор времени</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--tg-theme-text-color, #000000);
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .calendar-container {
+            background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .nav-btn {
+            background: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .nav-btn:hover {
+            opacity: 0.8;
+        }
+
+        .month-year {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--tg-theme-text-color, #000000);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .day-header {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--tg-theme-hint-color, #999999);
+            padding: 8px 0;
+        }
+
+        .day-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .day-cell:hover {
+            background: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+        }
+
+        .day-cell.disabled {
+            color: var(--tg-theme-hint-color, #999999);
+            cursor: not-allowed;
+        }
+
+        .day-cell.disabled:hover {
+            background: none;
+            color: var(--tg-theme-hint-color, #999999);
+        }
+
+        .day-cell.selected {
+            background: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+        }
+
+        .time-slots {
+            display: none;
+        }
+
+        .time-slots.active {
+            display: block;
+        }
+
+        .time-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .time-slot {
+            background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .time-slot:hover {
+            border-color: var(--tg-theme-button-color, #3390ec);
+            background: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+        }
+
+        .time-slot.selected {
+            background: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border-color: var(--tg-theme-button-color, #3390ec);
+        }
+
+        .time-slot.disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            background: #ffebee;
+            color: #c62828;
+            position: relative;
+        }
+
+        .time-slot.disabled:hover {
+            border-color: transparent;
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .time-slot.disabled::after {
+            content: '❌ Занято';
+            display: block;
+            font-size: 11px;
+            font-weight: 400;
+            margin-top: 4px;
+            opacity: 0.8;
+        }
+
+        .time-slot.available {
+            background: #e8f5e8;
+            border: 2px solid #4caf50;
+            color: #2e7d32;
+            position: relative;
+        }
+
+        .time-slot.available::after {
+            content: '✅ Свободно';
+            display: block;
+            font-size: 11px;
+            font-weight: 400;
+            margin-top: 4px;
+            opacity: 0.8;
+        }
+
+        .time-slot.available:hover {
+            background: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border-color: var(--tg-theme-button-color, #3390ec);
+        }
+
+        .time-slot.available:hover::after {
+            content: '👆 Выбрать';
+        }
+
+        .selected-info {
+            background: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 20px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .selected-info.active {
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            color: var(--tg-theme-hint-color, #999999);
+            margin: 20px 0;
+        }
+
+        @media (max-width: 480px) {
+            .time-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📅 Выберите дату и время</h1>
+        
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <button class="nav-btn" id="prevMonth">‹</button>
+                <div class="month-year" id="monthYear"></div>
+                <button class="nav-btn" id="nextMonth">›</button>
+            </div>
+            
+            <div class="calendar-grid" id="calendar">
+                <!-- Calendar will be generated here -->
+            </div>
+        </div>
+
+        <div class="time-slots" id="timeSlots">
+            <h3 style="margin-bottom: 16px; color: var(--tg-theme-text-color, #000000);">Выберите время:</h3>
+            <div class="time-grid" id="timeGrid">
+                <!-- Time slots will be generated here -->
+            </div>
+        </div>
+
+        <div class="selected-info" id="selectedInfo">
+            <div id="selectedDateTime"></div>
+        </div>
+
+        <div class="loading" id="loading" style="display: none;">
+            Проверяем доступность...
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Telegram Web App с проверкой
+        const tg = window.Telegram?.WebApp || {
+            // Заглушка для тестирования в браузере
+            expand: () => console.log('tg.expand() called'),
+            ready: () => console.log('tg.ready() called'),
+            MainButton: {
+                setText: (text) => console.log('MainButton text:', text),
+                show: () => console.log('MainButton shown'),
+                hide: () => console.log('MainButton hidden'),
+                onClick: (callback) => {
+                    console.log('MainButton onClick set');
+                    // Для тестирования добавляем кнопку
+                    if (!document.getElementById('testButton')) {
+                        const btn = document.createElement('button');
+                        btn.id = 'testButton';
+                        btn.textContent = 'Записаться (ТЕСТ)';
+                        btn.style.cssText = `
+                            position: fixed;
+                            bottom: 20px;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            background: var(--tg-theme-button-color, #3390ec);
+                            color: white;
+                            border: none;
+                            padding: 16px 32px;
+                            border-radius: 12px;
+                            font-size: 16px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            z-index: 1000;
+                        `;
+                        btn.onclick = callback;
+                        document.body.appendChild(btn);
+                    }
+                }
+            },
+            sendData: (data) => {
+                console.log('Sending data to Telegram:', data);
+                alert('Данные для отправки в Telegram:\n\n' + data);
+            },
+            close: () => console.log('tg.close() called'),
+            colorScheme: 'light',
+            initDataUnsafe: {
+                user: {
+                    id: 12345,
+                    first_name: 'Test',
+                    username: 'testuser'
+                }
+            }
+        };
+        
+        // Проверяем, работаем ли мы в Telegram
+        const isInTelegram = window.Telegram && window.Telegram.WebApp;
+        if (isInTelegram) {
+            tg.expand();
+            tg.ready();
+        } else {
+            console.log('🧪 Режим тестирования в браузере');
+            // Показываем уведомление о тестовом режиме
+            const testNotice = document.createElement('div');
+            testNotice.style.cssText = `
+                position: fixed;
+                top: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #ff9500;
+                color: white;
+                padding: 8px 16px;
+                border-radius: 8px;
+                font-size: 12px;
+                z-index: 1000;
+            `;
+            testNotice.textContent = '🧪 Тестовый режим (откройте в Telegram для полной функциональности)';
+            document.body.appendChild(testNotice);
+        }
+
+        // Конфигурация (настраивается под каждый проект)
+        const CONFIG = {
+            // Рабочие часы (можно настроить)
+            workingHours: [14, 15, 19],
+            
+            // Рабочие дни (0 = воскресенье, 1 = понедельник, ...)
+            workingDays: [1, 2, 3, 4, 5], // пн-пт
+            
+            // Минимальное количество часов заранее для записи
+            minHoursAhead: 2,
+            
+            // Максимальное количество дней вперед для записи
+            maxDaysAhead: 21,
+            
+            // URL для проверки занятых слотов (настраивается)
+            checkAvailabilityUrl: null, // можно подключить к Make.com webhook
+            
+            // Занятые слоты (для демо, в реальности загружаются с сервера)
+            blockedSlots: [
+                '2025-05-29-14',
+                '2025-05-30-15',
+                '2025-05-31-19',
+                '2025-06-01-16'
+            ],
+
+            // URL для загрузки занятых слотов (интеграция с Make.com)
+            getBookedSlotsUrl: 'https://hook.make.com/your-webhook-url', // замените на ваш
+        };
+
+        let currentDate = new Date();
+        let selectedDate = null;
+        let selectedTime = null;
+
+        const months = [
+            'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+            'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+        ];
+
+        const dayHeaders = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+
+        function initCalendar() {
+            renderCalendar();
+            
+            document.getElementById('prevMonth').addEventListener('click', () => {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar();
+            });
+            
+            document.getElementById('nextMonth').addEventListener('click', () => {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar();
+            });
+        }
+
+        function renderCalendar() {
+            const calendar = document.getElementById('calendar');
+            const monthYear = document.getElementById('monthYear');
+            
+            monthYear.textContent = `${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+            
+            calendar.innerHTML = '';
+            
+            // Заголовки дней недели
+            dayHeaders.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'day-header';
+                dayHeader.textContent = day;
+                calendar.appendChild(dayHeader);
+            });
+            
+            // Получаем первый день месяца и количество дней
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+            const startDate = new Date(firstDay);
+            
+            // Корректируем начало недели (понедельник = 0)
+            const dayOfWeek = (firstDay.getDay() + 6) % 7;
+            startDate.setDate(startDate.getDate() - dayOfWeek);
+            
+            // Генерируем календарь (6 недель)
+            for (let i = 0; i < 42; i++) {
+                const cellDate = new Date(startDate);
+                cellDate.setDate(startDate.getDate() + i);
+                
+                const dayCell = document.createElement('div');
+                dayCell.className = 'day-cell';
+                dayCell.textContent = cellDate.getDate();
+                
+                const isCurrentMonth = cellDate.getMonth() === currentDate.getMonth();
+                const isAvailable = isDateAvailable(cellDate);
+                
+                if (!isCurrentMonth || !isAvailable) {
+                    dayCell.classList.add('disabled');
+                } else {
+                    dayCell.addEventListener('click', () => selectDate(cellDate));
+                }
+                
+                calendar.appendChild(dayCell);
+            }
+        }
+
+        function isDateAvailable(date) {
+            const now = new Date();
+            const minDate = new Date(now.getTime() + CONFIG.minHoursAhead * 60 * 60 * 1000);
+            const maxDate = new Date(now.getTime() + CONFIG.maxDaysAhead * 24 * 60 * 60 * 1000);
+            
+            // Проверяем диапазон дат
+            if (date < minDate || date > maxDate) return false;
+            
+            // Проверяем рабочие дни
+            const dayOfWeek = date.getDay();
+            if (!CONFIG.workingDays.includes(dayOfWeek)) return false;
+            
+            return true;
+        }
+
+        function selectDate(date) {
+            selectedDate = new Date(date);
+            selectedTime = null;
+            
+            // Обновляем внешний вид календаря
+            document.querySelectorAll('.day-cell').forEach(cell => {
+                cell.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+            
+            // Показываем слоты времени
+            renderTimeSlots();
+        }
+
+        function renderTimeSlots() {
+            const timeSlots = document.getElementById('timeSlots');
+            const timeGrid = document.getElementById('timeGrid');
+            const loading = document.getElementById('loading');
+            
+            timeSlots.classList.add('active');
+            timeGrid.innerHTML = '';
+            loading.style.display = 'block';
+            
+            // Если есть URL для загрузки занятых слотов, загружаем их
+            if (CONFIG.getBookedSlotsUrl) {
+                loadBookedSlots(selectedDate).then(() => {
+                    renderTimeSlotsUI();
+                    loading.style.display = 'none';
+                });
+            } else {
+                renderTimeSlotsUI();
+                loading.style.display = 'none';
+            }
+        }
+
+        async function loadBookedSlots(date) {
+            try {
+                const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                
+                const response = await fetch(CONFIG.getBookedSlotsUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        date: dateStr,
+                        action: 'getBookedSlots'
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    // Обновляем blocked slots для выбранной даты
+                    CONFIG.blockedSlots = CONFIG.blockedSlots.filter(slot => !slot.startsWith(dateStr));
+                    if (data.bookedSlots) {
+                        CONFIG.blockedSlots.push(...data.bookedSlots);
+                    }
+                }
+            } catch (error) {
+                console.log('Не удалось загрузить занятые слоты, используем локальные данные');
+            }
+        }
+
+        function renderTimeSlotsUI() {
+            const timeGrid = document.getElementById('timeGrid');
+            timeGrid.innerHTML = '';
+            
+            // Добавляем заголовок с информацией
+            const dateStr = selectedDate.toLocaleDateString('ru-RU', { 
+                weekday: 'long', 
+                day: 'numeric', 
+                month: 'long' 
+            });
+            
+            const infoDiv = document.createElement('div');
+            infoDiv.style.cssText = `
+                grid-column: 1 / -1;
+                text-align: center;
+                padding: 12px;
+                background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+                border-radius: 8px;
+                margin-bottom: 12px;
+                font-weight: 600;
+                color: var(--tg-theme-text-color, #000000);
+            `;
+            infoDiv.innerHTML = `📅 ${dateStr}<br><small style="opacity: 0.7;">Выберите удобное время</small>`;
+            timeGrid.appendChild(infoDiv);
+
+            CONFIG.workingHours.forEach(hour => {
+                const timeSlot = document.createElement('div');
+                timeSlot.className = 'time-slot';
+                
+                // Создаем содержимое слота
+                const timeDiv = document.createElement('div');
+                timeDiv.style.fontWeight = '600';
+                timeDiv.textContent = `${hour}:00`;
+                timeSlot.appendChild(timeDiv);
+                
+                const slotKey = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}-${hour}`;
+                
+                if (CONFIG.blockedSlots.includes(slotKey)) {
+                    timeSlot.classList.add('disabled');
+                } else {
+                    timeSlot.classList.add('available');
+                    timeSlot.addEventListener('click', () => selectTime(hour, timeSlot));
+                }
+                
+                timeGrid.appendChild(timeSlot);
+            });
+
+            // Добавляем статистику
+            const availableCount = CONFIG.workingHours.filter(hour => {
+                const slotKey = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}-${hour}`;
+                return !CONFIG.blockedSlots.includes(slotKey);
+            }).length;
+
+            const statsDiv = document.createElement('div');
+            statsDiv.style.cssText = `
+                grid-column: 1 / -1;
+                text-align: center;
+                padding: 8px;
+                font-size: 12px;
+                color: var(--tg-theme-hint-color, #999999);
+                margin-top: 8px;
+            `;
+            statsDiv.innerHTML = `
+                ✅ Свободно: <strong>${availableCount}</strong> из ${CONFIG.workingHours.length} слотов
+            `;
+            timeGrid.appendChild(statsDiv);
+        }
+
+        function selectTime(hour, element) {
+            selectedTime = hour;
+            
+            // Обновляем внешний вид слотов времени
+            document.querySelectorAll('.time-slot.available').forEach(slot => {
+                slot.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            
+            // Показываем выбранную информацию
+            showSelectedInfo();
+            
+            // Активируем кнопку отправки
+            const dateStr = selectedDate.toLocaleDateString('ru-RU');
+            const timeStr = `${hour}:00`;
+            
+            tg.MainButton.setText(`✅ Записаться на ${dateStr} в ${timeStr}`);
+            tg.MainButton.show();
+            tg.MainButton.onClick(() => {
+                sendData();
+            });
+        }
+
+        function showSelectedInfo() {
+            const selectedInfo = document.getElementById('selectedInfo');
+            const selectedDateTime = document.getElementById('selectedDateTime');
+            
+            const dateStr = selectedDate.toLocaleDateString('ru-RU', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            selectedDateTime.innerHTML = `
+                <div>📅 ${dateStr}</div>
+                <div style="margin-top: 8px;">⏰ ${selectedTime}:00</div>
+            `;
+            
+            selectedInfo.classList.add('active');
+        }
+
+        function sendData() {
+            const data = {
+                date: selectedDate.toISOString().split('T')[0],
+                time: selectedTime,
+                timestamp: Math.floor(selectedDate.getTime() / 1000),
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                user: tg.initDataUnsafe?.user || null
+            };
+            
+            // Отправляем данные обратно в бот
+            tg.sendData(JSON.stringify(data));
+            tg.close();
+        }
+
+        // Запускаем приложение
+        initCalendar();
+
+        // Настройка темы
+        document.documentElement.style.setProperty('--tg-color-scheme', tg.colorScheme || 'light');
+    </script>
+</body>
+</html>
